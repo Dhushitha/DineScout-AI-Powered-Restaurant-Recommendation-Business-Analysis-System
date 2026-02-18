@@ -4,6 +4,13 @@ DineScout is a full-stack web application that helps users find nearby restauran
 
 DineScout is a full-stack web application integrated with data analytics and machine learning to help users discover nearby restaurants and assist restaurant owners in making smart business decisions.
 
+## 🎥 Project Demo
+
+A complete walkthrough of the DineScout system, including registration, login, restaurant recommendation, and dashboard features.
+
+▶️ Demo Video Link: 
+https://drive.google.com/file/d/1WFPiPuBNSPM01edQviuxBE8CSfXe3aab/view?usp=sharing
+
 ---
 
 ## 📌 Features
