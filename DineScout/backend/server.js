@@ -54,7 +54,7 @@ app.use(express.static(
 
 // ================= MONGODB =================
 mongoose.connect(
-  "mongodb+srv://dhushitha:dhushi22@cluster0.xt0dcl4.mongodb.net/dinescout"
+  "<your_mongoDB_string"
 )
 .then(() => console.log("MongoDB Connected ✅"))
 .catch(e => console.log("Mongo Error:", e));
