@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Business Consultant</title>
+
+<style>
+
+body{
+  margin:0;
+  font-family: Arial, sans-serif;
+  background:#f5f7fb;
+}
+
+.container{
+  display:grid;
+  grid-template-columns:240px 1fr;
+  min-height:100vh;
+}
+
+/* Sidebar */
+.side{
+  background:#1e293b;
+  color:white;
+  padding:20px;
+}
+
+.side h2{
+  text-align:center;
+}
+
+.side select,
+.side button{
+  width:100%;
+  margin:10px 0;
+  padding:8px;
+}
+
+.side button{
+  background:#ff5722;
+  border:none;
+  color:white;
+  cursor:pointer;
+}
+
+/* Main */
+.main{
+  padding:25px;
+}
+
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.logout{
+  background:#ff5722;
+  color:white;
+  border:none;
+  padding:8px 15px;
+  cursor:pointer;
+}
+
+/* Cards */
+.cards{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:15px;
+  margin-top:20px;
+}
+
+.card{
+  background:white;
+  padding:15px;
+  border-radius:8px;
+  text-align:center;
+  box-shadow:0 0 5px rgba(0,0,0,0.1);
+}
+
+/* Info */
+.info{
+  background:#e0f2fe;
+  padding:12px;
+  margin-top:15px;
+  border-radius:6px;
+}
+
+.success{
+  background:#dcfce7;
+  padding:12px;
+  margin-top:10px;
+  border-radius:6px;
+}
+
+</style>
+</head>
+
+
+<body>
+
+<div class="container">
+
+  <!-- Sidebar -->
+  <div class="side">
+
+    <h2>🍽️ Consultant</h2>
+
+    <label>City</label>
+    <select id="city"></select>
+
+    <label>Cuisine</label>
+    <select id="cuisine"></select>
+
+    <button type="button" onclick="analyze()">Analyze</button>
+
+  </div>
+
+
+  <!-- Main -->
+  <div class="main">
+
+    <div class="top">
+
+      <h2>AI Business Consultant</h2>
+
+      <button class="logout" onclick="logout()">Logout</button>
+
+    </div>
+
+
+    <div class="cards" id="cards"></div>
+
+    <div id="info"></div>
+
+  </div>
+
+</div>
+
+
+
+<script>
+
+console.log("Dashboard loaded");
+
+// ================= AUTH =================
+if(!localStorage.getItem("token")){
+  window.location = "login.html";
+}
+
+
+// ================= LOGOUT =================
+function logout(){
+  localStorage.clear();
+  window.location = "login.html";
+}
+
+
+// ================= LOAD META =================
+async function loadData(){
+
+  try{
+
+    const citySelect = document.getElementById("city");
+    const cuisineSelect = document.getElementById("cuisine");
+
+    const res = await fetch("http://localhost:5000/api/owner/meta");
+    const data = await res.json();
+
+    citySelect.innerHTML = "";
+    cuisineSelect.innerHTML = "";
+
+    data.cities.forEach(c=>{
+      const opt = document.createElement("option");
+      opt.value = c;
+      opt.textContent = c;
+      citySelect.appendChild(opt);
+    });
+
+    data.cuisines.forEach(c=>{
+      const opt = document.createElement("option");
+      opt.value = c;
+      opt.textContent = c;
+      cuisineSelect.appendChild(opt);
+    });
+
+    console.log("Meta loaded");
+
+  }catch(err){
+
+    console.error("Meta error:",err);
+    alert("Failed to load cities & cuisines");
+
+  }
+}
+
+loadData();
+
+
+// ================= ANALYZE =================
+async function analyze(){
+
+  try{
+
+    const cityValue =
+      document.getElementById("city").value;
+
+    const cuisineValue =
+      document.getElementById("cuisine").value;
+
+    if(!cityValue || !cuisineValue){
+      alert("Select city and cuisine");
+      return;
+    }
+
+    console.log("Analyzing:",cityValue,cuisineValue);
+
+
+    const res = await fetch(
+      "http://localhost:5000/api/owner/market-analysis",
+      {
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+          city: cityValue,
+          cuisine: cuisineValue
+        })
+      }
+    );
+
+    const data = await res.json();
+
+    console.log("Result:",data);
+
+
+    const cards = document.getElementById("cards");
+    const info = document.getElementById("info");
+
+
+    // Cards
+    cards.innerHTML = `
+
+      <div class="card">
+        ⭐ Rating<br><b>${data.avg_rating}</b>
+      </div>
+
+      <div class="card">
+        💰 Cost<br><b>₹${data.avg_cost}</b>
+      </div>
+
+      <div class="card">
+        👍 Votes<br><b>${data.avg_votes}</b>
+      </div>
+
+      <div class="card">
+        🏪 Restaurants<br><b>${data.total_restaurants}</b>
+      </div>
+
+    `;
+
+
+    // Info
+    info.innerHTML = `
+
+      <div class="info">
+        Demand: <b>${data.demand}</b>
+      </div>
+
+      <div class="success">
+        ${data.recommendation}
+      </div>
+
+      <hr>
+
+      <h3>📌 Top Cuisines in ${cityValue}</h3>
+      ${listHTML(data.top_city_cuisines)}
+
+      <h3>🌍 Top Cities for ${cuisineValue}</h3>
+      ${listHTML(data.top_cuisine_cities)}
+
+      <h3>💡 Best Business Options</h3>
+      <ul>
+        <li>${data.best_options[0] || ""}</li>
+        <li>${data.best_options[1] || ""}</li>
+      </ul>
+
+    `;
+
+
+  }catch(err){
+
+    console.error("Analyze error:",err);
+    alert("Analysis failed");
+
+  }
+
+}
+
+
+// ================= HELPER =================
+function listHTML(obj){
+
+  if(!obj || Object.keys(obj).length===0){
+    return "<p>No data</p>";
+  }
+
+  let html = "<ul>";
+
+  for(let k in obj){
+    html += `<li>${k} (${obj[k]})</li>`;
+  }
+
+  html += "</ul>";
+
+  return html;
+}
+
+</script>
+
+</body>
+</html>

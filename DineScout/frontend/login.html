@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>DineScout - Login</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .card {
+      background: #fff;
+      padding: 40px;
+      width: 350px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 15px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #ff5722;
+      border: none;
+      color: white;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background: #e64a19;
+    }
+
+    #msg {
+      margin-top: 15px;
+      color: red;
+      font-size: 14px;
+    }
+
+    .link {
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    .link a {
+      color: #ff5722;
+      text-decoration: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+
+    <h2>Login</h2>
+
+    <input
+      type="text"
+      id="username"
+      placeholder="Username"
+      autocomplete="off"
+    />
+
+    <input
+      type="password"
+      id="password"
+      placeholder="Password"
+    />
+
+    <button onclick="login()">Login</button>
+
+    <p id="msg"></p>
+
+    <div class="link">
+      New user? <a href="register.html">Register</a>
+    </div>
+
+  </div>
+
+
+<script>
+
+async function login() {
+
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value.trim();
+  const msg = document.getElementById("msg");
+
+  msg.innerText = "";
+
+  // Validation
+  if (!username || !password) {
+    msg.innerText = "Enter username and password";
+    return;
+  }
+
+  try {
+
+    const res = await fetch("http://localhost:5000/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        username: username,
+        password: password
+      })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      msg.innerText = data.msg || "Login failed";
+      return;
+    }
+
+    // Save token + role
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("role", data.role);
+
+    // Redirect by role
+    if (data.role === "owner") {
+      window.location.href = "owner-dashboard.html";
+    } else {
+      window.location.href = "index.html";
+    }
+
+  } catch (err) {
+
+    console.error("LOGIN ERROR:", err);
+    msg.innerText = "Cannot connect to server";
+
+  }
+}
+
+</script>
+
+</body>
+</html>
