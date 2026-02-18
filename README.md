@@ -9,7 +9,7 @@ DineScout is a full-stack web application integrated with data analytics and mac
 A complete walkthrough of the DineScout system, including registration, login, restaurant recommendation, and dashboard features.
 
 ▶️ Demo Video Link: 
-https://drive.google.com/file/d/1WFPiPuBNSPM01edQviuxBE8CSfXe3aab/view?usp=sharing
+[https://drive.google.com/file/d/1WFPiPuBNSPM01edQviuxBE8CSfXe3aab/view?usp=sharing](https://drive.google.com/file/d/1vEe-M2t3ln3KLBCqpF7N-azHyJ8MTk_V/view?usp=sharing)
 
 ---
 
